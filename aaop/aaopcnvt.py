@@ -26,7 +26,7 @@ import sys
 import math
 from aaop import AAOPFile
 
-def to_obj(infile, outfile):
+def to_obj(args, infile, outfile):
     # Write all vertexes
     for stack in range(infile.num_stacks):
         outfile.write('# Stack {stack:d}\n'.format(stack=stack))
@@ -56,12 +56,22 @@ def to_obj(infile, outfile):
                 v4=next_stack_idx + spoke
                 ))
 
+    if args.enclose:
+        outfile.write('# top cap\n')
+        outfile.write('f {v}\n'.format(
+            v=' '.join('%d' % (1 + d) for d in range(infile.num_spokes))))
+
+        outfile.write('# bottom cap\n')
+        outfile.write('f {v}\n'.format(
+            v=' '.join('%d' % (1 + d + infile.num_spokes * (infile.num_stacks - 1)) for d in range(infile.num_spokes))))
+
 def main():
-    def handle_output(infile, fmt, outfile):
-        if fmt == 'obj':
-            to_obj(infile, outfile)
+    def handle_output(args, infile, outfile):
+        if args.output == 'obj':
+            to_obj(args, infile, outfile)
 
     parser = argparse.ArgumentParser(description="Converts an AAOP file to a OBJ model")
+    parser.add_argument('--enclose', '-e', help="Enclose ends of model", action='store_true')
     parser.add_argument('infile', help='AAOP input file (.aop). "-" for stdin')
     parser.add_argument('outfile', help='Output file. "-" for stdout')
     parser.add_argument('-o', '--output', help='Output format', choices=['obj'], default='obj')
@@ -75,10 +85,10 @@ def main():
             aaop = AAOPFile(infile)
 
     if args.outfile == '-':
-        handle_output(aaop, args.output, sys.stdout)
+        handle_output(args, aaop, sys.stdout)
     else:
         with open(args.outfile, 'w') as outfile:
-            handle_output(aaop, args.output, outfile)
+            handle_output(args, aaop, outfile)
 
 if __name__ == "__main__":
     main()
