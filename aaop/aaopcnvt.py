@@ -27,6 +27,9 @@ import math
 from aaop import AAOPFile
 
 def to_obj(args, infile, outfile):
+    for c in infile.comments:
+        outfile.write('# {c}\n'.format(c=c))
+
     # Write all vertexes
     for stack in range(infile.num_stacks):
         outfile.write('# Stack {stack:d}\n'.format(stack=stack))

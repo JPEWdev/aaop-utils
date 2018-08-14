@@ -58,9 +58,9 @@ class AAOPFile(object):
         self.comments = []
 
         for l in get_line():
-            self.comments.append(l)
             if l == 'END COMMENTS':
                 break
+            self.comments.append(l)
 
         self.fmt = next_line()
         unknown1 = next_line()
